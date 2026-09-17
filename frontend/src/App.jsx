@@ -1,20 +1,21 @@
 import { useState } from "react"
-import HomePage from "./pages/HomePage"
-import AdminPage from "./pages/AdminPage"
-import CustomerPage from "./pages/CustomerPage"
+import Navbar from "./components/Navbar"
+import Hero from "./components/Hero"
+import Cars from "./components/Cars"
+import About from "./components/About"
 
 function App() {
-  const [role, setRole] = useState(null)
+  const [page, setPage] = useState("home")
 
-  if (role === "admin") {
-    return <AdminPage onBack={() => setRole(null)} />
-  }
+  return (
+    <>
+      <Navbar onNavigate={setPage} currentPage={page} />
 
-  if (role === "pelanggan") {
-    return <CustomerPage onBack={() => setRole(null)} />
-  }
-
-  return <HomePage onSelectRole={setRole} />
+      {page === "home" && <Hero />}
+      {page === "cars" && <Cars />}
+      {page === "about" && <About />}
+    </>
+  )
 }
 
 export default App
