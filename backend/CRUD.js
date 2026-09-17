@@ -1,11 +1,20 @@
 import express from "express"
 import mysql from "mysql2/promise"
 import cors from "cors"
+import multer from "multer"
+import path from "path"
 
 const app = express()
 
 app.use(cors())
 app.use(express.json())
+app.use("/uploads", express.static("uploads"))
+
+const storage = multer.diskStorage({
+  destination: "uploads/cars",
+  filename: (req, file, cb) => cb(null, file.originalname)
+})
+const upload = multer({ storage })
 
 const db = await mysql.createConnection({
   host: "localhost",
@@ -19,13 +28,14 @@ app.get("/api/cars", async (req, res) => {
   res.json(rows)
 })
 
-app.post("/api/cars", async (req, res) => {
+app.post("/api/cars", upload.single("gambar"), async (req, res) => {
   const { nama, harga, kursi, transmisi, status } = req.body
+  const gambar = req.file ? req.file.originalname : null
 
   try {
     const [result] = await db.query(
-      "INSERT INTO cars (nama, harga, kursi, transmisi, status) VALUES (?, ?, ?, ?, ?)",
-      [nama, harga, kursi, transmisi, status]
+      "INSERT INTO cars (nama, harga, kursi, transmisi, status, gambar) VALUES (?, ?, ?, ?, ?, ?)",
+      [nama, harga, kursi, transmisi, status, gambar]
     )
 
     const [rows] = await db.query("SELECT * FROM cars WHERE id = ?", [result.insertId])
@@ -35,18 +45,19 @@ app.post("/api/cars", async (req, res) => {
   }
 })
 
-app.put("/api/cars/:id", async (req, res) => {
+app.put("/api/cars/:id", upload.single("gambar"), async (req, res) => {
   const { nama, harga, kursi, transmisi, status } = req.body
 
   try {
-    const [result] = await db.query(
-      "UPDATE cars SET nama = ?, harga = ?, kursi = ?, transmisi = ?, status = ? WHERE id = ?",
-      [nama, harga, kursi, transmisi, status, req.params.id]
-    )
+    const [existing] = await db.query("SELECT gambar FROM cars WHERE id = ?", [req.params.id])
+    if (existing.length === 0) return res.status(404).json({ message: "Mobil tidak ditemukan" })
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Mobil tidak ditemukan" })
-    }
+    const gambar = req.file ? req.file.originalname : existing[0].gambar
+
+    const [result] = await db.query(
+      "UPDATE cars SET nama = ?, harga = ?, kursi = ?, transmisi = ?, status = ?, gambar = ? WHERE id = ?",
+      [nama, harga, kursi, transmisi, status, gambar, req.params.id]
+    )
 
     const [rows] = await db.query("SELECT * FROM cars WHERE id = ?", [req.params.id])
     res.json(rows[0])

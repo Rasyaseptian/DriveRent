@@ -8,7 +8,8 @@ const initialForm = {
   harga: "",
   kursi: "",
   transmisi: "Manual",
-  status: "tersedia"
+  status: "tersedia",
+  gambar: null
 }
 
 function Cars() {
@@ -32,8 +33,12 @@ function Cars() {
   }, [])
 
   const handleChange = (event) => {
-    const { name, value } = event.target
-    setForm((prev) => ({ ...prev, [name]: value }))
+    const { name, value, files } = event.target
+    if (files) {
+      setForm((prev) => ({ ...prev, gambar: files[0] }))
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }))
+    }
   }
 
   const resetForm = () => {
@@ -45,13 +50,13 @@ function Cars() {
     event.preventDefault()
     setError("")
 
-    const payload = {
-      nama: form.nama,
-      harga: Number(form.harga),
-      kursi: Number(form.kursi),
-      transmisi: form.transmisi,
-      status: form.status
-    }
+    const formData = new FormData()
+    formData.append("nama", form.nama)
+    formData.append("harga", Number(form.harga))
+    formData.append("kursi", Number(form.kursi))
+    formData.append("transmisi", form.transmisi)
+    formData.append("status", form.status)
+    if (form.gambar) formData.append("gambar", form.gambar)
 
     const method = editingId ? "PUT" : "POST"
     const url = editingId ? `${apiUrl}/api/cars/${editingId}` : `${apiUrl}/api/cars`
@@ -59,8 +64,7 @@ function Cars() {
     try {
       const response = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: formData
       })
 
       if (!response.ok) throw new Error("Gagal menyimpan data mobil")
@@ -78,7 +82,8 @@ function Cars() {
       harga: String(car.harga),
       kursi: String(car.kursi),
       transmisi: car.transmisi,
-      status: car.status
+      status: car.status,
+      gambar: null
     })
   }
 
@@ -137,6 +142,11 @@ function Cars() {
                 <option value="disewa">Disewa</option>
               </select>
             </label>
+
+            <label className="text-sm font-medium text-gray-700">
+              Gambar
+              <input type="file" name="gambar" accept="image/*" onChange={handleChange} className="mt-1.5 w-full rounded-lg border border-gray-300 px-3 py-2.5" />
+            </label>
           </div>
 
           <div className="mt-6 flex gap-3">
@@ -164,7 +174,7 @@ function Cars() {
               status={car.status}
               onEdit={() => handleEdit(car)}
               onDelete={() => handleDelete(car.id)}
-              gambar={undefined}
+              gambar={car.gambar ? `${apiUrl}/uploads/cars/${car.gambar}` : null}
             />
           ))}
         </div>

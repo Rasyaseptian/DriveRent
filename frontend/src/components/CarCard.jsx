@@ -2,11 +2,11 @@ function CarCard({ nama, harga, kursi, transmisi, status, gambar, onEdit, onDele
   return (
     <article className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="relative h-52 overflow-hidden bg-gray-100">
-        <img
-          src={gambar}
-          alt={nama}
-          className="h-full w-full object-cover"
-        />
+        {gambar ? (
+          <img src={gambar} alt={nama} className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full items-center justify-center text-gray-400 text-sm">Tidak ada gambar</div>
+        )}
 
         <div className="absolute right-3 top-3 rounded-md bg-white px-2.5 py-1 text-xs font-semibold capitalize text-gray-700 shadow-sm">
           {status}

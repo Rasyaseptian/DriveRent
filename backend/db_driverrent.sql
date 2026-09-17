@@ -10,6 +10,7 @@ CREATE TABLE cars (
     harga INT NOT NULL,
     kursi INT NOT NULL,
     transmisi ENUM('Manual', 'Automatic') NOT NULL,
+    gambar VARCHAR(255) NOT NULL,
     status ENUM('tersedia', 'disewa') NOT NULL DEFAULT 'tersedia'
 );
 
