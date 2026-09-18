@@ -6,6 +6,8 @@ function Navbar({ currentPage, onNavigate }) {
   const navItems = [
     { id: 'home', label: 'Home' },
     { id: 'cars', label: 'Mobil' },
+    { id: 'pelanggan', label: 'Pelanggan' },
+    { id: 'transaksi', label: 'Transaksi' },
     { id: 'about', label: 'Tentang' },
   ]
 
