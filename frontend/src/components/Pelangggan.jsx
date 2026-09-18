@@ -63,7 +63,10 @@ function Pelanggan() {
     if (!window.confirm("Hapus pelanggan ini?")) return
     try {
       const res = await fetch(`${apiUrl}/api/pelanggan/${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Gagal menghapus pelanggan")
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.message || "Gagal menghapus pelanggan")
+      }
       setPelanggan((prev) => prev.filter((p) => p.id !== id))
     } catch (err) {
       setError(err.message)
@@ -78,7 +81,7 @@ function Pelanggan() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
