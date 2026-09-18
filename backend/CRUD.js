@@ -23,19 +23,24 @@ const db = await mysql.createConnection({
   database: "driverent"
 })
 
+const JENIS_VALID = ['City Car', 'MPV', 'SUV', 'Sedan', 'Hatchback', 'Minibus', 'Luxury', 'Supercar']
+
 app.get("/api/cars", async (req, res) => {
   const [rows] = await db.query("SELECT * FROM cars")
   res.json(rows)
 })
 
 app.post("/api/cars", upload.single("gambar"), async (req, res) => {
-  const { nama, harga, kursi, transmisi, status } = req.body
+  const { nama, harga, kursi, transmisi, status, jenis } = req.body
   const gambar = req.file ? req.file.originalname : null
+
+  if (jenis && !JENIS_VALID.includes(jenis))
+    return res.status(400).json({ message: "Jenis mobil tidak valid" })
 
   try {
     const [result] = await db.query(
-      "INSERT INTO cars (nama, harga, kursi, transmisi, status, gambar) VALUES (?, ?, ?, ?, ?, ?)",
-      [nama, harga, kursi, transmisi, status, gambar]
+      "INSERT INTO cars (nama, harga, kursi, transmisi, status, gambar, jenis) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [nama, harga, kursi, transmisi, status, gambar, jenis || null]
     )
 
     const [rows] = await db.query("SELECT * FROM cars WHERE id = ?", [result.insertId])
@@ -46,7 +51,10 @@ app.post("/api/cars", upload.single("gambar"), async (req, res) => {
 })
 
 app.put("/api/cars/:id", upload.single("gambar"), async (req, res) => {
-  const { nama, harga, kursi, transmisi, status } = req.body
+  const { nama, harga, kursi, transmisi, status, jenis } = req.body
+
+  if (jenis && !JENIS_VALID.includes(jenis))
+    return res.status(400).json({ message: "Jenis mobil tidak valid" })
 
   try {
     const [existing] = await db.query("SELECT gambar FROM cars WHERE id = ?", [req.params.id])
@@ -54,9 +62,9 @@ app.put("/api/cars/:id", upload.single("gambar"), async (req, res) => {
 
     const gambar = req.file ? req.file.originalname : existing[0].gambar
 
-    const [result] = await db.query(
-      "UPDATE cars SET nama = ?, harga = ?, kursi = ?, transmisi = ?, status = ?, gambar = ? WHERE id = ?",
-      [nama, harga, kursi, transmisi, status, gambar, req.params.id]
+    await db.query(
+      "UPDATE cars SET nama = ?, harga = ?, kursi = ?, transmisi = ?, status = ?, gambar = ?, jenis = ? WHERE id = ?",
+      [nama, harga, kursi, transmisi, status, gambar, jenis || null, req.params.id]
     )
 
     const [rows] = await db.query("SELECT * FROM cars WHERE id = ?", [req.params.id])

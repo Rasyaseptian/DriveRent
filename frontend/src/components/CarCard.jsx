@@ -1,4 +1,4 @@
-function CarCard({ nama, harga, kursi, transmisi, status, gambar, onEdit, onDelete }) {
+function CarCard({ nama, harga, kursi, transmisi, status, jenis, gambar, onEdit, onDelete }) {
   return (
     <article className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="relative h-52 overflow-hidden bg-gray-100">
@@ -18,6 +18,12 @@ function CarCard({ nama, harga, kursi, transmisi, status, gambar, onEdit, onDele
           {nama}
         </h2>
 
+        {jenis && (
+          <span className="mt-1 inline-block rounded-md bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
+            {jenis}
+          </span>
+        )}
+
         <p className="mt-1 text-lg font-bold text-blue-600">
           Rp{harga.toLocaleString("id-ID")}
           <span className="text-sm font-normal text-gray-500">
@@ -28,6 +34,7 @@ function CarCard({ nama, harga, kursi, transmisi, status, gambar, onEdit, onDele
         <div className="mt-4 flex items-center gap-4 border-t border-gray-100 pt-3 text-sm text-gray-600">
           <span>{kursi} Kursi</span>
           <span>{transmisi}</span>
+          {jenis && <span>{jenis}</span>}
         </div>
 
         <div className="mt-4 flex gap-2">

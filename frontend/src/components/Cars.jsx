@@ -3,12 +3,15 @@ import CarCard from "./CarCard"
 
 const apiUrl = "http://localhost:3000"
 
+const JENIS_OPTIONS = ['City Car', 'MPV', 'SUV', 'Sedan', 'Hatchback', 'Minibus', 'Luxury', 'Supercar']
+
 const initialForm = {
   nama: "",
   harga: "",
   kursi: "",
   transmisi: "Manual",
   status: "tersedia",
+  jenis: "City Car",
   gambar: null,
 }
 
@@ -58,6 +61,7 @@ function Cars() {
     formData.append("kursi", Number(form.kursi))
     formData.append("transmisi", form.transmisi)
     formData.append("status", form.status)
+    formData.append("jenis", form.jenis)
     if (form.gambar) formData.append("gambar", form.gambar)
 
     const method = editingId ? "PUT" : "POST"
@@ -81,6 +85,7 @@ function Cars() {
       kursi: String(car.kursi),
       transmisi: car.transmisi,
       status: car.status,
+      jenis: car.jenis || "City Car",
       gambar: null,
     })
     setIsFormOpen(true)
@@ -184,6 +189,20 @@ function Cars() {
               </label>
 
               <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                Jenis
+                <select
+                  name="jenis"
+                  value={form.jenis}
+                  onChange={handleChange}
+                  className={inputClass}
+                >
+                  {JENIS_OPTIONS.map((j) => (
+                    <option key={j} value={j}>{j}</option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">
                 Transmisi
                 <select
                   name="transmisi"
@@ -258,6 +277,7 @@ function Cars() {
                 kursi={car.kursi}
                 transmisi={car.transmisi}
                 status={car.status}
+                jenis={car.jenis}
                 onEdit={() => handleEdit(car)}
                 onDelete={() => handleDelete(car.id)}
                 gambar={car.gambar ? `${apiUrl}/uploads/cars/${car.gambar}` : null}

@@ -10,8 +10,10 @@ CREATE TABLE cars (
     harga INT NOT NULL,
     kursi INT NOT NULL,
     transmisi ENUM('Manual', 'Automatic') NOT NULL,
-    gambar VARCHAR(255) NOT NULL,
+    gambar VARCHAR(255),
     status ENUM('tersedia', 'disewa') NOT NULL DEFAULT 'tersedia'
 );
+
+ALTER TABLE cars ADD COLUMN jenis VARCHAR(50) AFTER kursi;
 
 SELECT id, nama, harga, kursi, transmisi, status FROM cars;
