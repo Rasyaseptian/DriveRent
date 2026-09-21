@@ -20,7 +20,8 @@ CREATE TABLE cars (
 CREATE TABLE pelanggan (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nama VARCHAR(100) NOT NULL,
-    no_hp VARCHAR(20) NOT NULL
+    no_hp VARCHAR(20) NOT NULL,
+    alamat TEXT
 );
 
 CREATE TABLE transaksi (
@@ -34,3 +35,9 @@ CREATE TABLE transaksi (
     FOREIGN KEY (pelanggan_id) REFERENCES pelanggan(id),
     FOREIGN KEY (mobil_id) REFERENCES cars(id)
 );
+
+SELECT * FROM cars;
+
+SELECT * FROM pelanggan;
+
+SELECT * FROM transaksi

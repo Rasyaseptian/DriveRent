@@ -4,6 +4,7 @@ import Hero from "./components/Hero"
 import Cars from "./components/Cars"
 import About from "./components/About"
 import Pelanggan from "./components/Pelangggan"
+import Penyewaan from "./components/Penyewaan"
 import Transaksi from "./components/Transaksi"
 
 function App() {
@@ -13,9 +14,10 @@ function App() {
     <>
       <Navbar onNavigate={setPage} currentPage={page} />
 
-      {page === "home" && <Hero onViewCars={() => setPage("cars")} />}
+      {page === "home" && <Hero onViewCars={() => setPage("cars")} onNavigate={setPage} />}
       {page === "cars" && <Cars />}
       {page === "pelanggan" && <Pelanggan />}
+      {page === "penyewaan" && <Penyewaan />}
       {page === "transaksi" && <Transaksi />}
       {page === "about" && <About />}
     </>

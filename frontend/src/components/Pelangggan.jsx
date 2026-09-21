@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 
 const apiUrl = "http://localhost:3000"
 
-const initialForm = { nama: "", no_hp: "" }
+const initialForm = { nama: "", no_hp: "", alamat: "" }
 
 function Pelanggan() {
   const [pelanggan, setPelanggan] = useState([])
@@ -55,7 +55,7 @@ function Pelanggan() {
 
   const handleEdit = (p) => {
     setEditingId(p.id)
-    setForm({ nama: p.nama, no_hp: p.no_hp })
+    setForm({ nama: p.nama, no_hp: p.no_hp, alamat: p.alamat || "" })
     setIsFormOpen(true)
   }
 
@@ -114,6 +114,10 @@ function Pelanggan() {
                 No HP
                 <input name="no_hp" value={form.no_hp} onChange={handleChange} required className={inputClass} />
               </label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-gray-500 sm:col-span-2">
+                Alamat
+                <textarea name="alamat" value={form.alamat} onChange={handleChange} rows={2} className={inputClass} />
+              </label>
             </div>
             <div className="mt-6 flex gap-3">
               <button type="submit" className="rounded-lg bg-[#1e3a5f] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#152a45]">
@@ -140,6 +144,7 @@ function Pelanggan() {
                   <div>
                     <p className="font-bold text-gray-900">{p.nama}</p>
                     <p className="text-sm text-gray-500">{p.no_hp}</p>
+                    {p.alamat && <p className="text-sm text-gray-400">{p.alamat}</p>}
                   </div>
                   <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${p.status_transaksi === "Aktif" ? "bg-amber-50 text-amber-700" : "bg-gray-100 text-gray-500"}`}>
                     {p.status_transaksi === "Aktif" ? "Menyewa" : "Tidak menyewa"}

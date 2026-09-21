@@ -7,6 +7,7 @@ function Navbar({ currentPage, onNavigate }) {
     { id: 'home', label: 'Home' },
     { id: 'cars', label: 'Mobil' },
     { id: 'pelanggan', label: 'Pelanggan' },
+    { id: 'penyewaan', label: 'Penyewaan' },
     { id: 'transaksi', label: 'Transaksi' },
     { id: 'about', label: 'Tentang' },
   ]

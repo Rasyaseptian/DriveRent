@@ -94,11 +94,11 @@ app.get("/api/pelanggan", async (req, res) => {
 })
 
 app.post("/api/pelanggan", async (req, res) => {
-  const { nama, no_hp } = req.body
+  const { nama, no_hp, alamat } = req.body
   try {
     const [result] = await db.query(
-      "INSERT INTO pelanggan (nama, no_hp) VALUES (?, ?)",
-      [nama, no_hp]
+      "INSERT INTO pelanggan (nama, no_hp, alamat) VALUES (?, ?, ?)",
+      [nama, no_hp, alamat || null]
     )
     const [rows] = await db.query("SELECT * FROM pelanggan WHERE id = ?", [result.insertId])
     res.status(201).json(rows[0])
@@ -108,11 +108,11 @@ app.post("/api/pelanggan", async (req, res) => {
 })
 
 app.put("/api/pelanggan/:id", async (req, res) => {
-  const { nama, no_hp } = req.body
+  const { nama, no_hp, alamat } = req.body
   try {
     const [result] = await db.query(
-      "UPDATE pelanggan SET nama = ?, no_hp = ? WHERE id = ?",
-      [nama, no_hp, req.params.id]
+      "UPDATE pelanggan SET nama = ?, no_hp = ?, alamat = ? WHERE id = ?",
+      [nama, no_hp, alamat || null, req.params.id]
     )
     if (result.affectedRows === 0)
       return res.status(404).json({ message: "Pelanggan tidak ditemukan" })
@@ -131,6 +131,8 @@ app.delete("/api/pelanggan/:id", async (req, res) => {
     )
     if (aktif.length > 0)
       return res.status(400).json({ message: "Pelanggan masih memiliki transaksi aktif" })
+
+    await db.query("DELETE FROM transaksi WHERE pelanggan_id = ?", [req.params.id])
 
     const [result] = await db.query("DELETE FROM pelanggan WHERE id = ?", [req.params.id])
     if (result.affectedRows === 0)

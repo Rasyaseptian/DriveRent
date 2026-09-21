@@ -18,9 +18,7 @@ function About() {
 
         {/* Deskripsi */}
         <p className="mt-6 text-base leading-relaxed text-gray-600 sm:text-lg">
-          DriveRent adalah aplikasi sederhana untuk mengelola data mobil rental. Fokus utama kami
-          adalah kemudahan CRUD — tambah, lihat, ubah, dan hapus data mobil dengan cepat dan
-          transparan.
+          DriveRent adalah aplikasi sederhana untuk mengelola data mobil rental.
         </p>
 
         {/* Divider */}
