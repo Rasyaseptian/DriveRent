@@ -32,6 +32,8 @@ app.get("/api/cars", async (req, res) => {
 app.post("/api/cars", upload.single("gambar"), async (req, res) => {
   const { nama, harga, kursi, transmisi, status, jenis } = req.body
   const gambar = req.file ? req.file.originalname : null
+  const hargaNum = Number(harga)
+  const kursiNum = Number(kursi)
 
   if (jenis && !JENIS_VALID.includes(jenis))
     return res.status(400).json({ message: "Jenis mobil tidak valid" })
@@ -39,7 +41,7 @@ app.post("/api/cars", upload.single("gambar"), async (req, res) => {
   try {
     const [result] = await db.query(
       "INSERT INTO cars (nama, harga, kursi, transmisi, status, gambar, jenis) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [nama, harga, kursi, transmisi, status, gambar, jenis || null]
+      [nama, hargaNum, kursiNum, transmisi, status, gambar, jenis || null]
     )
     const [rows] = await db.query("SELECT * FROM cars WHERE id = ?", [result.insertId])
     res.status(201).json(rows[0])
@@ -50,6 +52,8 @@ app.post("/api/cars", upload.single("gambar"), async (req, res) => {
 
 app.put("/api/cars/:id", upload.single("gambar"), async (req, res) => {
   const { nama, harga, kursi, transmisi, status, jenis } = req.body
+  const hargaNum = Number(harga)
+  const kursiNum = Number(kursi)
 
   if (jenis && !JENIS_VALID.includes(jenis))
     return res.status(400).json({ message: "Jenis mobil tidak valid" })
@@ -62,12 +66,12 @@ app.put("/api/cars/:id", upload.single("gambar"), async (req, res) => {
 
     await db.query(
       "UPDATE cars SET nama = ?, harga = ?, kursi = ?, transmisi = ?, status = ?, gambar = ?, jenis = ? WHERE id = ?",
-      [nama, harga, kursi, transmisi, status, gambar, jenis || null, req.params.id]
+      [nama, hargaNum, kursiNum, transmisi, status, gambar, jenis || null, req.params.id]
     )
     const [rows] = await db.query("SELECT * FROM cars WHERE id = ?", [req.params.id])
     res.json(rows[0])
   } catch (error) {
-    res.status(400).json({ message: "Data mobil tidak valid" })
+    res.status(500).json({ message: "Gagal mengedit mobil" })
   }
 })
 
