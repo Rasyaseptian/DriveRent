@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import CarCard from "./CarCard"
-
-const apiUrl = "http://localhost:3000"
+import { apiFetch, API_URL } from "../lib/api"
 
 const JENIS_OPTIONS = ['City Car', 'MPV', 'SUV', 'Sedan', 'Hatchback', 'Minibus', 'Luxury', 'Supercar']
 
@@ -15,7 +14,8 @@ const initialForm = {
   gambar: null,
 }
 
-function Cars() {
+function Cars({ mode = "admin" }) {
+  const isCatalog = mode === "catalog"
   const [cars, setCars] = useState([])
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(initialForm)
@@ -24,7 +24,7 @@ function Cars() {
 
   const loadCars = async () => {
     try {
-      const response = await fetch(`${apiUrl}/api/cars`)
+      const response = await apiFetch("/api/cars")
       if (!response.ok) throw new Error("Gagal mengambil data mobil")
       setCars(await response.json())
     } catch (err) {
@@ -65,10 +65,10 @@ function Cars() {
     if (form.gambar) formData.append("gambar", form.gambar)
 
     const method = editingId ? "PUT" : "POST"
-    const url = editingId ? `${apiUrl}/api/cars/${editingId}` : `${apiUrl}/api/cars`
+    const url = editingId ? `/api/cars/${editingId}` : "/api/cars"
 
     try {
-      const response = await fetch(url, { method, body: formData })
+      const response = await apiFetch(url, { method, body: formData })
       if (!response.ok) throw new Error("Gagal menyimpan data mobil")
       await loadCars()
       resetForm()
@@ -95,7 +95,7 @@ function Cars() {
     if (!window.confirm("Hapus mobil ini?")) return
 
     try {
-      const response = await fetch(`${apiUrl}/api/cars/${id}`, { method: "DELETE" })
+      const response = await apiFetch(`/api/cars/${id}`, { method: "DELETE" })
       if (!response.ok) throw new Error("Gagal menghapus data mobil")
       setCars((prev) => prev.filter((car) => car.id !== id))
       if (editingId === id) resetForm()
@@ -114,14 +114,14 @@ function Cars() {
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-              Kelola Mobil
+              {isCatalog ? "Pilih Mobil" : "Kelola Mobil"}
             </h1>
             <p className="mt-1 text-sm text-gray-500">
               {cars.length} mobil terdaftar
             </p>
           </div>
 
-          <button
+          {!isCatalog && <button
             type="button"
             onClick={() => {
               if (isFormOpen && editingId) resetForm()
@@ -130,7 +130,7 @@ function Cars() {
             className="rounded-lg bg-[#1e3a5f] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#152a45]"
           >
             {isFormOpen ? "Tutup" : "+ Tambah"}
-          </button>
+          </button>}
         </div>
 
         {/* Error */}
@@ -141,10 +141,10 @@ function Cars() {
         )}
 
         {/* Form */}
-        {isFormOpen && (
+        {!isCatalog && isFormOpen && (
           <form
             onSubmit={handleSubmit}
-            className="mb-10 rounded-xl border border-gray-200 bg-gray-50/60 p-5 sm:p-6"
+            className="mb-10 rounded-xl border border-[#1e3a5f]/20 bg-gray-50/60 p-5 sm:p-6"
           >
             <h2 className="mb-5 text-base font-bold text-gray-900">
               {editingId ? "Edit Mobil" : "Tambah Mobil Baru"}
@@ -264,7 +264,7 @@ function Cars() {
         {cars.length === 0 ? (
           <div className="rounded-xl border border-dashed border-gray-200 py-16 text-center">
             <p className="text-sm text-gray-500">
-              Belum ada mobil. Klik "+ Tambah" untuk memulai.
+              {isCatalog ? "Belum ada mobil tersedia." : 'Belum ada mobil. Klik "+ Tambah" untuk memulai.'}
             </p>
           </div>
         ) : (
@@ -280,7 +280,8 @@ function Cars() {
                 jenis={car.jenis}
                 onEdit={() => handleEdit(car)}
                 onDelete={() => handleDelete(car.id)}
-                gambar={car.gambar ? `${apiUrl}/uploads/cars/${car.gambar}` : null}
+                showActions={!isCatalog}
+                gambar={car.gambar ? `${API_URL}/uploads/cars/${car.gambar}` : null}
               />
             ))}
           </div>

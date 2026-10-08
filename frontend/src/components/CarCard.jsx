@@ -1,4 +1,4 @@
-function CarCard({ nama, harga, kursi, transmisi, status, jenis, gambar, onEdit, onDelete }) {
+function CarCard({ nama, harga, kursi, transmisi, status, jenis, gambar, onEdit, onDelete, showActions = true }) {
   const statusStyle = status === "tersedia"
     ? "bg-emerald-50 text-emerald-700"
     : "bg-red-50 text-red-600"
@@ -37,14 +37,14 @@ function CarCard({ nama, harga, kursi, transmisi, status, jenis, gambar, onEdit,
           <span>{transmisi}</span>
         </div>
 
-        <div className="mt-3 flex gap-2">
+        {showActions && <div className="mt-3 flex gap-2">
           <button onClick={onEdit} className="flex-1 rounded-lg bg-[#1e3a5f] px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#152a45]">
             Edit
           </button>
           <button onClick={onDelete} className="flex-1 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100">
             Hapus
           </button>
-        </div>
+        </div>}
       </div>
     </article>
   )

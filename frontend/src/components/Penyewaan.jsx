@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
-
-const apiUrl = "http://localhost:3000"
+import { apiFetch } from "../lib/api"
 
 const initialForm = {
   pelanggan_id: "",
@@ -20,8 +19,8 @@ function Penyewaan() {
   const loadData = async () => {
     try {
       const [pRes, cRes] = await Promise.all([
-        fetch(`${apiUrl}/api/pelanggan`),
-        fetch(`${apiUrl}/api/cars`),
+        apiFetch("/api/pelanggan"),
+        apiFetch("/api/cars"),
       ])
       setPelanggan(await pRes.json())
       setMobilTersedia((await cRes.json()).filter((c) => c.status === "tersedia"))
@@ -60,7 +59,7 @@ function Penyewaan() {
     setError("")
     setSuccess("")
     try {
-      const res = await fetch(`${apiUrl}/api/transaksi`, {
+      const res = await apiFetch("/api/transaksi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, total_harga: totalHarga }),

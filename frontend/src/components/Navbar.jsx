@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function Navbar({ currentPage, onNavigate }) {
+function Navbar({ currentPage, onNavigate, onLogout }) {
   const [isOpen, setIsOpen] = useState(false)
 
   const navItems = [
@@ -25,7 +25,7 @@ function Navbar({ currentPage, onNavigate }) {
           onClick={() => handleNavigate('home')}
           className="group flex items-center gap-3 transition-opacity hover:opacity-90"
         >
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 text-[#1e3a5f] shadow-md shadow-amber-400/30 transition-transform duration-300 group-hover:scale-105">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-amber-400 to-amber-500 text-[#1e3a5f] shadow-md shadow-amber-400/30 transition-transform duration-300 group-hover:scale-105">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -91,6 +91,12 @@ function Navbar({ currentPage, onNavigate }) {
               <path d="M5 12h14" />
               <path d="m12 5 7 7-7 7" />
             </svg>
+          </button>
+          <button
+            onClick={onLogout}
+            className="rounded-xl border border-white/20 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:border-red-300/50 hover:bg-red-400/10 hover:text-red-100"
+          >
+            Logout
           </button>
         </div>
 
@@ -173,6 +179,12 @@ function Navbar({ currentPage, onNavigate }) {
               <path d="M5 12h14" />
               <path d="m12 5 7 7-7 7" />
             </svg>
+          </button>
+          <button
+            onClick={() => { setIsOpen(false); onLogout?.() }}
+            className="mt-2 inline-flex w-full items-center justify-center rounded-xl border border-white/15 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-400/10"
+          >
+            Logout
           </button>
         </div>
       </div>

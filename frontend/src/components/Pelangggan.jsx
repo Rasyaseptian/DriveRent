@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
-
-const apiUrl = "http://localhost:3000"
+import { apiFetch } from "../lib/api"
 
 const initialForm = { nama: "", no_hp: "", alamat: "" }
 
@@ -13,7 +12,7 @@ function Pelanggan() {
 
   const load = async () => {
     try {
-      const res = await fetch(`${apiUrl}/api/pelanggan`)
+      const res = await apiFetch("/api/pelanggan")
       if (!res.ok) throw new Error("Gagal mengambil data pelanggan")
       setPelanggan(await res.json())
     } catch (err) {
@@ -38,9 +37,9 @@ function Pelanggan() {
     e.preventDefault()
     setError("")
     const method = editingId ? "PUT" : "POST"
-    const url = editingId ? `${apiUrl}/api/pelanggan/${editingId}` : `${apiUrl}/api/pelanggan`
+    const url = editingId ? `/api/pelanggan/${editingId}` : "/api/pelanggan"
     try {
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form)
@@ -62,7 +61,7 @@ function Pelanggan() {
   const handleDelete = async (id) => {
     if (!window.confirm("Hapus pelanggan ini?")) return
     try {
-      const res = await fetch(`${apiUrl}/api/pelanggan/${id}`, { method: "DELETE" })
+      const res = await apiFetch(`/api/pelanggan/${id}`, { method: "DELETE" })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
         throw new Error(data.message || "Gagal menghapus pelanggan")

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
-
-const apiUrl = "http://localhost:3000"
+import { apiFetch } from "../lib/api"
 
 function Transaksi() {
   const [transaksi, setTransaksi] = useState([])
@@ -8,7 +7,7 @@ function Transaksi() {
 
   const load = async () => {
     try {
-      const res = await fetch(`${apiUrl}/api/transaksi`)
+      const res = await apiFetch("/api/transaksi")
       if (!res.ok) throw new Error("Gagal memuat data transaksi")
       setTransaksi(await res.json())
     } catch (err) {
@@ -21,7 +20,7 @@ function Transaksi() {
   const handleSelesai = async (id) => {
     if (!window.confirm("Selesaikan transaksi ini?")) return
     try {
-      const res = await fetch(`${apiUrl}/api/transaksi/${id}`, { method: "PUT" })
+      const res = await apiFetch(`/api/transaksi/${id}`, { method: "PUT" })
       if (!res.ok) throw new Error("Gagal mengupdate transaksi")
       await load()
     } catch (err) {
