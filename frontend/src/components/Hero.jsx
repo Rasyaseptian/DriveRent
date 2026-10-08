@@ -38,13 +38,6 @@ function Hero({ onViewCars, onNavigate }) {
                     <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
                   </svg>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => onNavigate("penyewaan")}
-                  className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-white/20 sm:text-base"
-                >
-                  Sewa Sekarang
-                </button>
               </div>
             </div>
 
