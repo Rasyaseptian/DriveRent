@@ -7,7 +7,6 @@ function Navbar({ currentPage, onNavigate, onLogout }) {
     { id: 'home', label: 'Home' },
     { id: 'cars', label: 'Mobil' },
     { id: 'pelanggan', label: 'Pelanggan' },
-    { id: 'penyewaan', label: 'Penyewaan' },
     { id: 'transaksi', label: 'Transaksi' },
     { id: 'about', label: 'Tentang' },
   ]
@@ -19,7 +18,7 @@ function Navbar({ currentPage, onNavigate, onLogout }) {
 
   return (
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#1e3a5f]/95 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-14 max-w-7xl items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:px-8">
         {/* Logo */}
         <button
           onClick={() => handleNavigate('home')}
@@ -46,14 +45,14 @@ function Navbar({ currentPage, onNavigate, onLogout }) {
         </button>
 
         {/* Desktop Nav */}
-        <div className="hidden items-center gap-1 sm:flex">
+        <div className="hidden items-center gap-0.5 lg:flex">
           {navItems.map((item) => {
             const isActive = currentPage === item.id
             return (
               <button
                 key={item.id}
                 onClick={() => handleNavigate(item.id)}
-                className={`relative rounded-lg px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                className={`relative rounded-lg px-2.5 py-2 text-sm font-medium transition-all duration-300 xl:px-3 ${
                   isActive
                     ? 'text-amber-400'
                     : 'text-blue-100/80 hover:bg-white/5 hover:text-white'
@@ -71,27 +70,8 @@ function Navbar({ currentPage, onNavigate, onLogout }) {
           })}
         </div>
 
-        {/* Desktop CTA */}
-        <div className="hidden items-center gap-3 sm:flex">
-          <button
-            onClick={() => handleNavigate('cars')}
-            className="group inline-flex items-center gap-2 rounded-xl bg-amber-400 px-5 py-2.5 text-sm font-bold text-[#1e3a5f] shadow-md shadow-amber-400/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-300 hover:shadow-lg hover:shadow-amber-400/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1e3a5f] active:translate-y-0"
-          >
-            <span>Sewa Sekarang</span>
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5"
-              aria-hidden="true"
-            >
-              <path d="M5 12h14" />
-              <path d="m12 5 7 7-7 7" />
-            </svg>
-          </button>
+        {/* Desktop actions */}
+        <div className="hidden items-center gap-3 lg:flex">
           <button
             onClick={onLogout}
             className="rounded-xl border border-white/20 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:border-red-300/50 hover:bg-red-400/10 hover:text-red-100"
@@ -106,7 +86,7 @@ function Navbar({ currentPage, onNavigate, onLogout }) {
           onClick={() => setIsOpen((prev) => !prev)}
           aria-label={isOpen ? 'Tutup menu' : 'Buka menu'}
           aria-expanded={isOpen}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-white backdrop-blur transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 sm:hidden"
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-white backdrop-blur transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 lg:hidden"
         >
           <svg
             viewBox="0 0 24 24"
@@ -136,11 +116,11 @@ function Navbar({ currentPage, onNavigate, onLogout }) {
 
       {/* Mobile Menu */}
       <div
-        className={`overflow-hidden border-t border-white/10 bg-[#152a45] transition-[max-height,opacity] duration-300 ease-out sm:hidden ${
-          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        className={`overflow-y-auto border-t border-white/10 bg-[#152a45] transition-[max-height,opacity] duration-300 ease-out lg:hidden ${
+          isOpen ? 'max-h-[calc(100dvh-4rem)] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="space-y-1 px-4 py-4 sm:px-6">
+        <div className="mx-auto max-w-7xl space-y-1 px-4 py-4 sm:px-6 lg:px-8">
           {navItems.map((item) => {
             const isActive = currentPage === item.id
             return (
@@ -161,25 +141,6 @@ function Navbar({ currentPage, onNavigate, onLogout }) {
             )
           })}
 
-          <button
-            onClick={() => handleNavigate('cars')}
-            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-400 px-5 py-3 text-sm font-bold text-[#1e3a5f] shadow-md shadow-amber-400/25 transition-colors hover:bg-amber-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
-          >
-            <span>Sewa Sekarang</span>
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-3.5 w-3.5"
-              aria-hidden="true"
-            >
-              <path d="M5 12h14" />
-              <path d="m12 5 7 7-7 7" />
-            </svg>
-          </button>
           <button
             onClick={() => { setIsOpen(false); onLogout?.() }}
             className="mt-2 inline-flex w-full items-center justify-center rounded-xl border border-white/15 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-400/10"

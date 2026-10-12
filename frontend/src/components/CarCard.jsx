@@ -5,7 +5,7 @@ function CarCard({ nama, harga, kursi, transmisi, status, jenis, gambar, onEdit,
 
   return (
     <article className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-      <div className="relative h-48 overflow-hidden bg-gray-100">
+      <div className="relative h-40 overflow-hidden bg-gray-100 sm:h-44">
         {gambar ? (
           <img src={gambar} alt={nama} className="h-full w-full object-cover" />
         ) : (
@@ -16,7 +16,7 @@ function CarCard({ nama, harga, kursi, transmisi, status, jenis, gambar, onEdit,
         </span>
       </div>
 
-      <div className="p-4">
+      <div className="p-3.5">
         <div className="mb-1 flex items-start justify-between gap-2">
           <h2 className="truncate text-base font-bold text-gray-900">{nama}</h2>
           {jenis && (
@@ -31,13 +31,13 @@ function CarCard({ nama, harga, kursi, transmisi, status, jenis, gambar, onEdit,
           <span className="text-sm font-normal text-gray-400"> / hari</span>
         </p>
 
-        <div className="mt-3 flex items-center gap-3 border-t border-gray-100 pt-3 text-xs text-gray-500">
+        <div className="mt-2.5 flex items-center gap-3 border-t border-gray-100 pt-2.5 text-xs text-gray-500">
           <span>{kursi} Kursi</span>
           <span>·</span>
           <span>{transmisi}</span>
         </div>
 
-        {showActions && <div className="mt-3 flex gap-2">
+        {showActions && <div className="mt-2.5 flex gap-2">
           <button onClick={onEdit} className="flex-1 rounded-lg bg-[#1e3a5f] px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#152a45]">
             Edit
           </button>
