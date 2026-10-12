@@ -20,7 +20,6 @@ function ProfilPelanggan({ user }) {
           <dl className="divide-y divide-gray-100 px-4 sm:px-5">
             {fields.map(([label, value]) => <div key={label} className="grid gap-1 py-3 sm:grid-cols-[120px_1fr] sm:gap-4"><dt className="text-xs text-gray-500 sm:text-sm">{label}</dt><dd className="wrap-break-word text-sm font-semibold text-gray-900">{value || "Belum diisi"}</dd></div>)}
           </dl>
-          <p className="px-4 pb-4 text-xs leading-relaxed text-gray-400 sm:px-5 sm:pb-5">Untuk memperbarui data profil, silakan hubungi admin DriveRent.</p>
         </div>
       </section>
     </main>

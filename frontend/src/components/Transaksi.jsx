@@ -75,7 +75,7 @@ function Transaksi() {
                     <td className="px-3 py-2.5 text-gray-500">{formatTanggal(t.tanggal_selesai)}</td>
                     <td className="whitespace-nowrap px-3 py-2.5 font-semibold text-gray-900">Rp{Number(t.total_harga).toLocaleString("id-ID")}</td>
                     <td className="px-3 py-2.5">
-                      <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${t.status === "Aktif" ? "bg-amber-50 text-amber-700" : "bg-green-50 text-green-700"}`}>
+                      <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${t.status === "Aktif" ? "bg-green-50 text-green-700" : "bg-blue-50 text-blue-700"}`}>
                         {t.status}
                       </span>
                     </td>

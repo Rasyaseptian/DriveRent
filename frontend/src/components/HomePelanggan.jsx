@@ -4,21 +4,21 @@ function HomePelanggan({ user, onNavigate }) {
       <section className="overflow-hidden bg-linear-to-br from-[#1e3a5f] via-[#152a45] to-[#0b1a2e] text-white">
         <div className="mx-auto grid max-w-7xl items-center gap-6 px-4 py-8 sm:px-6 sm:py-10 lg:grid-cols-[1.2fr_0.8fr] lg:px-8 lg:py-12">
           <div>
-            <span className="rounded-full border border-amber-300/30 bg-amber-300/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-amber-300">Area Pelanggan</span>
+            <span className="rounded-full border border-amber-300/30 bg-amber-300/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-amber-300">Pelanggan</span>
             <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">Halo, {user?.nama || user?.username || "Pelanggan"}!</h1>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-blue-100/80 sm:text-base">Cari mobil, ajukan peminjaman, dan pantau status dari satu tempat.</p>
             <div className="mt-5 flex flex-wrap gap-2.5">
-              <button onClick={() => onNavigate("customer-cars")} className="rounded-lg bg-amber-400 px-4 py-2.5 text-sm font-bold text-[#1e3a5f] transition hover:bg-amber-300">Jelajahi mobil</button>
+              <button onClick={() => onNavigate("customer-cars")} className="rounded-lg bg-amber-400 px-4 py-2.5 text-sm font-bold text-[#1e3a5f] transition hover:bg-amber-300">Lihat mobil</button>
               <button onClick={() => onNavigate("customer-peminjaman")} className="rounded-lg border border-white/25 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">Peminjaman saya</button>
             </div>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-xl backdrop-blur sm:p-6">
-            <h2 className="text-lg font-bold">Sewa lebih mudah</h2>
-            <ul className="mt-4 space-y-2.5 text-sm text-blue-100/80">
-              <li className="flex gap-3"><span className="text-amber-300">✓</span>Lihat mobil yang tersedia</li>
-              <li className="flex gap-3"><span className="text-amber-300">✓</span>Ajukan tanggal peminjaman</li>
-              <li className="flex gap-3"><span className="text-amber-300">✓</span>Pantau riwayat sewa</li>
-            </ul>
+          <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/40">
+            <img
+              src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"
+              alt="Mobil premium DriveRent"
+              className="h-40 w-full object-cover sm:h-52 lg:h-56"
+              loading="lazy"
+            />
           </div>
         </div>
       </section>

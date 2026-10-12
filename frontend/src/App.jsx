@@ -16,6 +16,7 @@ function App() {
   const [user, setUser] = useState(null)
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [page, setPage] = useState("home")
+  const [selectedCarId, setSelectedCarId] = useState("")
 
   useEffect(() => {
     let active = true
@@ -79,9 +80,10 @@ function App() {
     return <>
       <NavbarPelanggan user={user} currentPage={page} onNavigate={setPage} onLogout={handleLogout} />
       {page === "customer-home" && <HomePelanggan user={user} onNavigate={setPage} />}
-      {page === "customer-cars" && <Cars mode="catalog" />}
-      {page === "customer-peminjaman" && <PeminjamanPelanggan />}
+      {page === "customer-cars" && <Cars mode="catalog" onRent={(carId) => { setSelectedCarId(carId); setPage("customer-peminjaman") }} />}
+      {page === "customer-peminjaman" && <PeminjamanPelanggan selectedCarId={selectedCarId} />}
       {page === "customer-profile" && <ProfilPelanggan user={user} />}
+      {page === "customer-about" && <About />}
     </>
   }
 

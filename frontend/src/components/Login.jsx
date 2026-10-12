@@ -40,7 +40,7 @@ function Login({ onLogin }) {
             <span className="text-lg font-bold">Drive<span className="text-amber-400">Rent</span></span>
           </div>
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-300">Selamat datang kembali</p>
-          <h1 className="mt-1.5 text-2xl font-bold tracking-tight">Masuk ke akunmu</h1>
+          <h1 className="mt-1.5 text-2xl font-bold tracking-tight">Masuk</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 p-6 sm:px-7 sm:py-6">
@@ -52,7 +52,6 @@ function Login({ onLogin }) {
               required
               value={identifier}
               onChange={(event) => setIdentifier(event.target.value)}
-              placeholder="nama atau email@contoh.com"
               className="mt-1.5 w-full rounded-lg border border-gray-200 px-3 py-2.5 font-normal outline-none transition focus:border-[#1e3a5f] focus:ring-2 focus:ring-[#1e3a5f]/10"
             />
           </label>
@@ -64,7 +63,6 @@ function Login({ onLogin }) {
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              placeholder="Masukkan password"
               className="mt-1.5 w-full rounded-lg border border-gray-200 px-3 py-2.5 font-normal outline-none transition focus:border-[#1e3a5f] focus:ring-2 focus:ring-[#1e3a5f]/10"
             />
           </label>

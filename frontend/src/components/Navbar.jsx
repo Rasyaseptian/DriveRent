@@ -8,7 +8,6 @@ function Navbar({ currentPage, onNavigate, onLogout }) {
     { id: 'cars', label: 'Mobil' },
     { id: 'pelanggan', label: 'Pelanggan' },
     { id: 'transaksi', label: 'Transaksi' },
-    { id: 'about', label: 'Tentang' },
   ]
 
   const handleNavigate = (page) => {
@@ -45,7 +44,7 @@ function Navbar({ currentPage, onNavigate, onLogout }) {
         </button>
 
         {/* Desktop Nav */}
-        <div className="hidden items-center gap-0.5 lg:flex">
+        <div className="ml-auto hidden items-center gap-0.5 lg:flex">
           {navItems.map((item) => {
             const isActive = currentPage === item.id
             return (

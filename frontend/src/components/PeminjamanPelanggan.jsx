@@ -3,10 +3,13 @@ import { apiFetch } from "../lib/api"
 
 const emptyForm = { mobil_id: "", tanggal_mulai: "", tanggal_selesai: "", nik_ktp: "" }
 
-function PeminjamanPelanggan() {
+function PeminjamanPelanggan({ selectedCarId }) {
   const [cars, setCars] = useState([])
   const [rentals, setRentals] = useState([])
-  const [form, setForm] = useState(emptyForm)
+  const [form, setForm] = useState(() => ({
+    ...emptyForm,
+    mobil_id: selectedCarId ? String(selectedCarId) : "",
+  }))
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [loading, setLoading] = useState(true)
@@ -112,7 +115,7 @@ function PeminjamanPelanggan() {
         ) : (
           <div className="grid gap-3 md:grid-cols-2">{rentals.map((rental) => (
             <article key={rental.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-              <div className="flex items-start justify-between gap-3"><div><h3 className="font-bold text-gray-900">{rental.nama_mobil}</h3><p className="mt-1 text-sm text-gray-500">{dateFormat(rental.tanggal_mulai)} — {dateFormat(rental.tanggal_selesai)}</p></div><span className={`rounded-full px-3 py-1 text-xs font-bold ${rental.status === "Aktif" ? "bg-amber-50 text-amber-700" : "bg-gray-100 text-gray-600"}`}>{rental.status}</span></div>
+              <div className="flex items-start justify-between gap-3"><div><h3 className="font-bold text-gray-900">{rental.nama_mobil}</h3><p className="mt-1 text-sm text-gray-500">{dateFormat(rental.tanggal_mulai)} — {dateFormat(rental.tanggal_selesai)}</p></div><span className={`rounded-full px-3 py-1 text-xs font-bold ${rental.status === "Aktif" ? "bg-green-50 text-green-700" : rental.status === "Selesai" ? "bg-blue-50 text-blue-700" : "bg-gray-100 text-gray-600"}`}>{rental.status}</span></div>
               <p className="mt-3 border-t border-gray-100 pt-3 text-sm font-semibold text-[#1e3a5f]">Total Rp{Number(rental.total_harga).toLocaleString("id-ID")}</p>
             </article>
           ))}</div>

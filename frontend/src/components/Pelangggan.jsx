@@ -145,7 +145,7 @@ function Pelanggan() {
                     <p className="text-sm text-gray-500">{p.no_hp}</p>
                     {p.alamat && <p className="text-sm text-gray-400">{p.alamat}</p>}
                   </div>
-                  <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${p.status_transaksi === "Aktif" ? "bg-amber-50 text-amber-700" : "bg-gray-100 text-gray-500"}`}>
+                  <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${p.status_transaksi === "Aktif" ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500"}`}>
                     {p.status_transaksi === "Aktif" ? "Menyewa" : "Tidak menyewa"}
                   </span>
                 </div>

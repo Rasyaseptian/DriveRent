@@ -3,22 +3,24 @@ import CarCard from "./CarCard"
 import { apiFetch, API_URL } from "../lib/api"
 
 const JENIS_OPTIONS = ['City Car', 'MPV', 'SUV', 'Sedan', 'Hatchback', 'Minibus', 'Luxury', 'Supercar']
+const PLATE_REGIONS = ["A", "B", "D", "F", "T", "E", "Z", "G", "H", "K", "R", "AA", "AB", "AD", "L", "M", "N", "P", "S", "W", "AE", "AG", "DK", "DR", "EA", "EB", "ED", "PA", "PB"]
 
-const initialForm = {
+const createInitialForm = () => ({
   nama: "",
+  plat_nomor: `${PLATE_REGIONS[Math.floor(Math.random() * PLATE_REGIONS.length)]} ${Math.floor(1000 + Math.random() * 9000)} ${String.fromCharCode(65 + Math.floor(Math.random() * 26), 65 + Math.floor(Math.random() * 26), 65 + Math.floor(Math.random() * 26))}`,
   harga: "",
   kursi: "",
   transmisi: "Manual",
   status: "tersedia",
   jenis: "City Car",
   gambar: null,
-}
+})
 
-function Cars({ mode = "admin" }) {
+function Cars({ mode = "admin", onRent }) {
   const isCatalog = mode === "catalog"
   const [cars, setCars] = useState([])
   const [editingId, setEditingId] = useState(null)
-  const [form, setForm] = useState(initialForm)
+  const [form, setForm] = useState(createInitialForm)
   const [error, setError] = useState("")
   const [isFormOpen, setIsFormOpen] = useState(false)
 
@@ -33,7 +35,7 @@ function Cars({ mode = "admin" }) {
   }
 
   useEffect(() => {
-    loadCars()
+    loadCars() // eslint-disable-line react-hooks/set-state-in-effect -- load data after mount
   }, [])
 
   const handleChange = (event) => {
@@ -47,7 +49,7 @@ function Cars({ mode = "admin" }) {
 
   const resetForm = () => {
     setEditingId(null)
-    setForm(initialForm)
+    setForm(createInitialForm())
     setIsFormOpen(false)
   }
 
@@ -57,6 +59,7 @@ function Cars({ mode = "admin" }) {
 
     const formData = new FormData()
     formData.append("nama", form.nama)
+    formData.append("plat_nomor", form.plat_nomor)
     formData.append("harga", Number(form.harga))
     formData.append("kursi", Number(form.kursi))
     formData.append("transmisi", form.transmisi)
@@ -81,6 +84,7 @@ function Cars({ mode = "admin" }) {
     setEditingId(car.id)
     setForm({
       nama: car.nama,
+      plat_nomor: car.plat_nomor,
       harga: String(car.harga),
       kursi: String(car.kursi),
       transmisi: car.transmisi,
@@ -92,11 +96,12 @@ function Cars({ mode = "admin" }) {
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Hapus mobil ini?")) return
+    if (!window.confirm("Arsipkan mobil ini? Riwayat transaksinya akan tetap tersimpan.")) return
 
     try {
       const response = await apiFetch(`/api/cars/${id}`, { method: "DELETE" })
-      if (!response.ok) throw new Error("Gagal menghapus data mobil")
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(data.message || "Gagal mengarsipkan mobil")
       setCars((prev) => prev.filter((car) => car.id !== id))
       if (editingId === id) resetForm()
     } catch (err) {
@@ -158,6 +163,20 @@ function Cars({ mode = "admin" }) {
                   value={form.nama}
                   onChange={handleChange}
                   required
+                  className={inputClass}
+                />
+              </label>
+
+              <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                Plat Nomor
+                <input
+                  name="plat_nomor"
+                  value={form.plat_nomor}
+                  onChange={handleChange}
+                  required
+                  maxLength={11}
+                  pattern="[A-Z]{1,2} [0-9]{1,4} [A-Z]{1,3}"
+                  title="Gunakan format seperti D 1234 ABC"
                   className={inputClass}
                 />
               </label>
@@ -273,6 +292,7 @@ function Cars({ mode = "admin" }) {
               <CarCard
                 key={car.id}
                 nama={car.nama}
+                platNomor={car.plat_nomor}
                 harga={car.harga}
                 kursi={car.kursi}
                 transmisi={car.transmisi}
@@ -280,6 +300,7 @@ function Cars({ mode = "admin" }) {
                 jenis={car.jenis}
                 onEdit={() => handleEdit(car)}
                 onDelete={() => handleDelete(car.id)}
+                onRent={isCatalog ? () => onRent?.(car.id) : undefined}
                 showActions={!isCatalog}
                 gambar={car.gambar ? `${API_URL}/uploads/cars/${car.gambar}` : null}
               />

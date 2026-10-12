@@ -1,4 +1,4 @@
-function CarCard({ nama, harga, kursi, transmisi, status, jenis, gambar, onEdit, onDelete, showActions = true }) {
+function CarCard({ nama, platNomor, harga, kursi, transmisi, status, jenis, gambar, onEdit, onDelete, onRent, showActions = true }) {
   const statusStyle = status === "tersedia"
     ? "bg-emerald-50 text-emerald-700"
     : "bg-red-50 text-red-600"
@@ -35,6 +35,15 @@ function CarCard({ nama, harga, kursi, transmisi, status, jenis, gambar, onEdit,
           <span>{kursi} Kursi</span>
           <span>·</span>
           <span>{transmisi}</span>
+        </div>
+
+        <div className="mt-1.5 flex items-end justify-between gap-2">
+          <p className="text-xs text-gray-500">Plat nomor: <span className="font-semibold tracking-wide text-gray-700">{platNomor}</span></p>
+          {onRent && status === "tersedia" && (
+            <button onClick={onRent} className="shrink-0 rounded-lg bg-[#1e3a5f] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#152a45]">
+              Sewa
+            </button>
+          )}
         </div>
 
         {showActions && <div className="mt-2.5 flex gap-2">
