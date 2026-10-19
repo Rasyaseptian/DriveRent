@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import Navbar from "./components/Navbar"
 import Hero from "./components/Hero"
+import Admin from "./components/Admin"
 import Cars from "./components/Cars"
 import About from "./components/About"
 import Pelanggan from "./components/Pelangggan"
@@ -67,14 +68,19 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem(AUTH_TOKEN_KEY)
     setUser(null)
-    setPage("login")
+    setPage("home")
   }
 
   if (isCheckingAuth) {
     return <main className="flex min-h-screen items-center justify-center bg-gray-50 text-sm font-medium text-gray-500">Memeriksa sesi…</main>
   }
 
-  if (!user || page === "login") return <Login onLogin={handleLogin} />
+  if (!user) {
+    if (page === "login") {
+      return <Login onLogin={handleLogin} />
+    }
+    return <Hero onLogin={() => setPage("login")} />
+  }
 
   if (user.role === "pelanggan") {
     return <>
@@ -91,7 +97,7 @@ function App() {
     <>
       <Navbar onNavigate={setPage} currentPage={page} onLogout={handleLogout} />
 
-      {page === "home" && <Hero onNavigate={setPage} />}
+      {page === "home" && <Admin onNavigate={setPage} />}
       {page === "cars" && <Cars />}
       {page === "pelanggan" && <Pelanggan />}
       {page === "transaksi" && <Transaksi />}

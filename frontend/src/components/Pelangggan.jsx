@@ -20,6 +20,7 @@ function Pelanggan() {
     }
   }
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- load customer data after mount
   useEffect(() => { load() }, [])
 
   const handleChange = (e) => {

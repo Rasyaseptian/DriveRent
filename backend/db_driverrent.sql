@@ -9,12 +9,14 @@ DROP TABLE IF EXISTS cars;
 CREATE TABLE cars (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nama VARCHAR(100) NOT NULL,
+    plat_nomor VARCHAR(11) NOT NULL UNIQUE,
     harga INT NOT NULL,
     kursi INT NOT NULL,
     transmisi ENUM('Manual', 'Automatic') NOT NULL,
     jenis VARCHAR(50),
     gambar VARCHAR(255),
-    status ENUM('tersedia', 'disewa') NOT NULL DEFAULT 'tersedia'
+    status ENUM('tersedia', 'disewa') NOT NULL DEFAULT 'tersedia',
+    is_archived TINYINT(1) NOT NULL DEFAULT 0
 );
 
 CREATE TABLE pelanggan (

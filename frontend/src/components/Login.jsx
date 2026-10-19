@@ -39,7 +39,7 @@ function Login({ onLogin }) {
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400 text-lg font-black text-[#1e3a5f]">D</span>
             <span className="text-lg font-bold">Drive<span className="text-amber-400">Rent</span></span>
           </div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-300">Selamat datang kembali</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-300">Selamat datang</p>
           <h1 className="mt-1.5 text-2xl font-bold tracking-tight">Masuk</h1>
         </div>
 

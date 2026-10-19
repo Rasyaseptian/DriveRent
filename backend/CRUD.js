@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import db from "./database.js"
 import { initializeAuthSchema } from "./auth-schema.js"
-import { ensureTransactionNikColumn } from "./migrations.js"
+import { ensureCarArchiveColumn, ensureCarPlateColumn, ensureTransactionNikColumn } from "./migrations.js"
 
 const app = express()
 
@@ -26,6 +26,8 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
 
 await initializeAuthSchema(db)
 await ensureTransactionNikColumn(db)
+await ensureCarPlateColumn(db)
+await ensureCarArchiveColumn(db)
 
 const authenticate = async (req, res, next) => {
   const [scheme, token] = (req.headers.authorization || "").split(" ")
@@ -109,33 +111,39 @@ app.get("/api/auth/me", async (req, res) => {
 const JENIS_VALID = ['City Car', 'MPV', 'SUV', 'Sedan', 'Hatchback', 'Minibus', 'Luxury', 'Supercar']
 
 app.get("/api/cars", requireRole("admin", "pelanggan"), async (req, res) => {
-  const [rows] = await db.query("SELECT * FROM cars")
+  const [rows] = await db.query("SELECT * FROM cars WHERE is_archived = 0")
   res.json(rows)
 })
 
 app.post("/api/cars", requireRole("admin"), upload.single("gambar"), async (req, res) => {
-  const { nama, harga, kursi, transmisi, status, jenis } = req.body
+  const { nama, plat_nomor, harga, kursi, transmisi, status, jenis } = req.body
   const gambar = req.file ? req.file.originalname : null
+  const plate = String(plat_nomor || "").trim().toUpperCase().replace(/\s+/g, " ")
   const hargaNum = Number(harga)
   const kursiNum = Number(kursi)
+
+  if (!/^[A-Z]{1,2} [0-9]{1,4} [A-Z]{1,3}$/.test(plate))
+    return res.status(400).json({ message: "Plat nomor harus menggunakan format seperti D 1234 ABC" })
 
   if (jenis && !JENIS_VALID.includes(jenis))
     return res.status(400).json({ message: "Jenis mobil tidak valid" })
 
   try {
     const [result] = await db.query(
-      "INSERT INTO cars (nama, harga, kursi, transmisi, status, gambar, jenis) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [nama, hargaNum, kursiNum, transmisi, status, gambar, jenis || null]
+      "INSERT INTO cars (nama, plat_nomor, harga, kursi, transmisi, status, gambar, jenis) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [nama, plate, hargaNum, kursiNum, transmisi, status, gambar, jenis || null]
     )
     const [rows] = await db.query("SELECT * FROM cars WHERE id = ?", [result.insertId])
     res.status(201).json(rows[0])
-  } catch {
+  } catch (error) {
+    if (error.code === "ER_DUP_ENTRY")
+      return res.status(409).json({ message: "Plat nomor tersebut sudah digunakan" })
     res.status(400).json({ message: "Data mobil tidak valid" })
   }
 })
 
 app.put("/api/cars/:id", requireRole("admin"), upload.single("gambar"), async (req, res) => {
-  const { nama, harga, kursi, transmisi, status, jenis } = req.body
+  const { nama, plat_nomor, harga, kursi, transmisi, status, jenis } = req.body
   const hargaNum = Number(harga)
   const kursiNum = Number(kursi)
 
@@ -143,30 +151,40 @@ app.put("/api/cars/:id", requireRole("admin"), upload.single("gambar"), async (r
     return res.status(400).json({ message: "Jenis mobil tidak valid" })
 
   try {
-    const [existing] = await db.query("SELECT gambar FROM cars WHERE id = ?", [req.params.id])
+    const [existing] = await db.query("SELECT gambar, plat_nomor FROM cars WHERE id = ?", [req.params.id])
     if (existing.length === 0) return res.status(404).json({ message: "Mobil tidak ditemukan" })
+
+    const plate = String(plat_nomor || existing[0].plat_nomor).trim().toUpperCase().replace(/\s+/g, " ")
+    if (!/^[A-Z]{1,2} [0-9]{1,4} [A-Z]{1,3}$/.test(plate))
+      return res.status(400).json({ message: "Plat nomor harus menggunakan format seperti D 1234 ABC" })
 
     const gambar = req.file ? req.file.originalname : existing[0].gambar
 
     await db.query(
-      "UPDATE cars SET nama = ?, harga = ?, kursi = ?, transmisi = ?, status = ?, gambar = ?, jenis = ? WHERE id = ?",
-      [nama, hargaNum, kursiNum, transmisi, status, gambar, jenis || null, req.params.id]
+      "UPDATE cars SET nama = ?, plat_nomor = ?, harga = ?, kursi = ?, transmisi = ?, status = ?, gambar = ?, jenis = ? WHERE id = ?",
+      [nama, plate, hargaNum, kursiNum, transmisi, status, gambar, jenis || null, req.params.id]
     )
     const [rows] = await db.query("SELECT * FROM cars WHERE id = ?", [req.params.id])
     res.json(rows[0])
-  } catch {
+  } catch (error) {
+    if (error.code === "ER_DUP_ENTRY")
+      return res.status(409).json({ message: "Plat nomor tersebut sudah digunakan" })
     res.status(500).json({ message: "Gagal mengedit mobil" })
   }
 })
 
 app.delete("/api/cars/:id", requireRole("admin"), async (req, res) => {
   try {
-    const [result] = await db.query("DELETE FROM cars WHERE id = ?", [req.params.id])
+    const [result] = await db.query(
+      "UPDATE cars SET is_archived = 1 WHERE id = ? AND is_archived = 0",
+      [req.params.id]
+    )
     if (result.affectedRows === 0)
       return res.status(404).json({ message: "Mobil tidak ditemukan" })
-    res.json({ message: "Mobil berhasil dihapus" })
-  } catch {
-    res.status(500).json({ message: "Gagal menghapus mobil" })
+    res.json({ message: "Mobil berhasil diarsipkan; riwayat transaksi tetap tersimpan" })
+  } catch (error) {
+    console.error("Gagal mengarsipkan mobil:", error.message)
+    res.status(500).json({ message: "Gagal mengarsipkan mobil" })
   }
 })
 
@@ -200,7 +218,7 @@ app.post("/api/me/transaksi", requireRole("pelanggan"), async (req, res) => {
   try {
     await connection.beginTransaction()
     const [cars] = await connection.query(
-      "SELECT id, nama, harga, status FROM cars WHERE id = ? FOR UPDATE",
+      "SELECT id, nama, harga, status FROM cars WHERE id = ? AND is_archived = 0 FOR UPDATE",
       [mobil_id]
     )
     if (!cars.length || cars[0].status !== "tersedia") {
