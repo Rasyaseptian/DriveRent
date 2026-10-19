@@ -49,7 +49,7 @@ function PeminjamanPelanggan({ selectedCarId }) {
       const data = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(data.message || "Peminjaman gagal disimpan")
       setForm(emptyForm)
-      setSuccess("Peminjaman berhasil diajukan.")
+      setSuccess("Pengajuan berhasil dikirim. Status saat ini: Menunggu Konfirmasi.")
       await load()
     } catch (submitError) {
       setError(submitError.message)
@@ -58,6 +58,12 @@ function PeminjamanPelanggan({ selectedCarId }) {
 
   const inputClass = "mt-1.5 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-[#1e3a5f] focus:ring-2 focus:ring-[#1e3a5f]/10"
   const dateFormat = (value) => value ? new Date(`${value.slice(0, 10)}T00:00:00`).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "-"
+  const statusClass = (status) => ({
+    "Menunggu Konfirmasi": "bg-amber-50 text-amber-700",
+    Aktif: "bg-green-50 text-green-700",
+    Ditolak: "bg-red-50 text-red-700",
+    Selesai: "bg-blue-50 text-blue-700",
+  }[status] || "bg-gray-100 text-gray-600")
 
   return (
     <main className="min-h-[calc(100dvh-3.5rem)] bg-gray-50">
@@ -115,7 +121,7 @@ function PeminjamanPelanggan({ selectedCarId }) {
         ) : (
           <div className="grid gap-3 md:grid-cols-2">{rentals.map((rental) => (
             <article key={rental.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-              <div className="flex items-start justify-between gap-3"><div><h3 className="font-bold text-gray-900">{rental.nama_mobil}</h3><p className="mt-1 text-sm text-gray-500">{dateFormat(rental.tanggal_mulai)} — {dateFormat(rental.tanggal_selesai)}</p></div><span className={`rounded-full px-3 py-1 text-xs font-bold ${rental.status === "Aktif" ? "bg-green-50 text-green-700" : rental.status === "Selesai" ? "bg-blue-50 text-blue-700" : "bg-gray-100 text-gray-600"}`}>{rental.status}</span></div>
+              <div className="flex items-start justify-between gap-3"><div><h3 className="font-bold text-gray-900">{rental.nama_mobil}</h3><p className="mt-1 text-sm text-gray-500">{dateFormat(rental.tanggal_mulai)} — {dateFormat(rental.tanggal_selesai)}</p></div><span className={`rounded-full px-3 py-1 text-xs font-bold ${statusClass(rental.status)}`}>{rental.status}</span></div>
               <p className="mt-3 border-t border-gray-100 pt-3 text-sm font-semibold text-[#1e3a5f]">Total Rp{Number(rental.total_harga).toLocaleString("id-ID")}</p>
             </article>
           ))}</div>

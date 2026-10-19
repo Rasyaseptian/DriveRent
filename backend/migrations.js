@@ -81,3 +81,24 @@ export async function ensureTransactionNikColumn(db) {
     )
   }
 }
+
+export async function ensureTransactionApprovalStatuses(db) {
+  const [columns] = await db.query(
+    `SELECT COLUMN_TYPE
+     FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME = 'transaksi'
+       AND COLUMN_NAME = 'status'`
+  )
+
+  if (columns.length === 0) {
+    throw new Error("Kolom status pada tabel transaksi tidak ditemukan")
+  }
+
+  const columnType = String(columns[0].COLUMN_TYPE || "")
+  if (!columnType.includes("Menunggu Konfirmasi") || !columnType.includes("Ditolak")) {
+    await db.query(
+      "ALTER TABLE transaksi MODIFY COLUMN status ENUM('Menunggu Konfirmasi', 'Aktif', 'Ditolak', 'Selesai') NOT NULL DEFAULT 'Aktif'"
+    )
+  }
+}

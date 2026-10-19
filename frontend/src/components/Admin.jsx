@@ -7,9 +7,8 @@ function Admin({ onNavigate }) {
           className="pointer-events-none absolute -top-40 -right-32 h-96 w-96 rounded-full bg-amber-400/15 blur-3xl"
         />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-9 lg:px-8 lg:py-10">
-          <div className="grid items-center gap-6 lg:grid-cols-2 lg:gap-10">
-            <div>
+        <div className="relative mx-auto max-w-7xl px-4 py-9 sm:px-6 sm:py-11 lg:px-8 lg:py-14">
+          <div className="max-w-3xl">
               <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
                 <span className="inline-flex h-1.5 w-1.5 rounded-full bg-amber-400" />
                 Dashboard Admin
@@ -21,19 +20,9 @@ function Admin({ onNavigate }) {
                 <span className="text-amber-400">Lebih Terarah</span>
               </h1>
 
-              <p className="mt-4 max-w-md text-sm leading-relaxed text-blue-100/80 sm:text-base">
+              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-blue-100/80 sm:text-base">
                 Atur armada, data pelanggan, dan transaksi dari satu tempat.
               </p>
-            </div>
-
-            <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/40">
-              <img
-                src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"
-                alt="Mobil premium DriveRent"
-                className="h-40 w-full object-cover sm:h-52 lg:h-56"
-                loading="lazy"
-              />
-            </div>
           </div>
         </div>
       </section>

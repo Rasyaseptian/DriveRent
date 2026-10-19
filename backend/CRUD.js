@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import db from "./database.js"
 import { initializeAuthSchema } from "./auth-schema.js"
-import { ensureCarArchiveColumn, ensureCarPlateColumn, ensureTransactionNikColumn } from "./migrations.js"
+import { ensureCarArchiveColumn, ensureCarPlateColumn, ensureTransactionApprovalStatuses, ensureTransactionNikColumn } from "./migrations.js"
 
 const app = express()
 
@@ -26,6 +26,7 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
 
 await initializeAuthSchema(db)
 await ensureTransactionNikColumn(db)
+await ensureTransactionApprovalStatuses(db)
 await ensureCarPlateColumn(db)
 await ensureCarArchiveColumn(db)
 
@@ -232,7 +233,7 @@ app.post("/api/me/transaksi", requireRole("pelanggan"), async (req, res) => {
     )
     const totalHarga = Number(cars[0].harga) * Math.max(1, Number(duration.hari))
     const [result] = await connection.query(
-      "INSERT INTO transaksi (pelanggan_id, mobil_id, tanggal_mulai, tanggal_selesai, total_harga, nik_ktp, status) VALUES (?, ?, ?, ?, ?, ?, 'Aktif')",
+      "INSERT INTO transaksi (pelanggan_id, mobil_id, tanggal_mulai, tanggal_selesai, total_harga, nik_ktp, status) VALUES (?, ?, ?, ?, ?, ?, 'Menunggu Konfirmasi')",
       [req.user.pelanggan_id, cars[0].id, tanggal_mulai, tanggal_selesai, totalHarga, nik_ktp]
     )
     await connection.query("UPDATE cars SET status = 'disewa' WHERE id = ?", [cars[0].id])
@@ -248,6 +249,81 @@ app.post("/api/me/transaksi", requireRole("pelanggan"), async (req, res) => {
     await connection.rollback()
     console.error("Peminjaman pelanggan gagal:", error.message)
     res.status(500).json({ message: "Peminjaman gagal diproses" })
+  } finally {
+    connection.release()
+  }
+})
+
+app.get("/api/pengajuan", requireRole("admin"), async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT t.*, p.nama AS nama_pelanggan, p.no_hp AS no_hp_pelanggan,
+             p.alamat AS alamat_pelanggan, c.nama AS nama_mobil, c.harga AS harga_per_hari,
+             DATEDIFF(t.tanggal_selesai, t.tanggal_mulai) AS durasi_hari
+      FROM transaksi t
+      JOIN pelanggan p ON p.id = t.pelanggan_id
+      JOIN cars c ON c.id = t.mobil_id
+      WHERE t.status = 'Menunggu Konfirmasi'
+      ORDER BY t.id DESC
+    `)
+    res.json(rows)
+  } catch (error) {
+    console.error("Gagal memuat pengajuan:", error.message)
+    res.status(500).json({ message: "Gagal memuat pengajuan peminjaman" })
+  }
+})
+
+app.patch("/api/pengajuan/:id/keputusan", requireRole("admin"), async (req, res) => {
+  const { keputusan } = req.body
+  if (!["setujui", "tolak"].includes(keputusan)) {
+    return res.status(400).json({ message: "Keputusan harus setujui atau tolak" })
+  }
+
+  const connection = await db.getConnection()
+  try {
+    await connection.beginTransaction()
+    const [requests] = await connection.query(
+      "SELECT id, mobil_id, status FROM transaksi WHERE id = ? FOR UPDATE",
+      [req.params.id]
+    )
+    if (!requests.length) {
+      await connection.rollback()
+      return res.status(404).json({ message: "Pengajuan tidak ditemukan" })
+    }
+    if (requests[0].status !== "Menunggu Konfirmasi") {
+      await connection.rollback()
+      return res.status(409).json({ message: "Pengajuan ini sudah diproses" })
+    }
+
+    await connection.query("SELECT id FROM cars WHERE id = ? FOR UPDATE", [requests[0].mobil_id])
+    const nextStatus = keputusan === "setujui" ? "Aktif" : "Ditolak"
+    await connection.query("UPDATE transaksi SET status = ? WHERE id = ?", [nextStatus, req.params.id])
+
+    if (keputusan === "tolak") {
+      const [reserved] = await connection.query(
+        "SELECT id FROM transaksi WHERE mobil_id = ? AND status IN ('Menunggu Konfirmasi', 'Aktif') LIMIT 1",
+        [requests[0].mobil_id]
+      )
+      if (!reserved.length) {
+        await connection.query("UPDATE cars SET status = 'tersedia' WHERE id = ?", [requests[0].mobil_id])
+      }
+    }
+
+    await connection.commit()
+    const [rows] = await db.query(`
+      SELECT t.*, p.nama AS nama_pelanggan, p.no_hp AS no_hp_pelanggan,
+             p.alamat AS alamat_pelanggan, c.nama AS nama_mobil, c.harga AS harga_per_hari,
+             DATEDIFF(t.tanggal_selesai, t.tanggal_mulai) AS durasi_hari
+      FROM transaksi t
+      JOIN pelanggan p ON p.id = t.pelanggan_id
+      JOIN cars c ON c.id = t.mobil_id
+      WHERE t.id = ?
+    `, [req.params.id])
+    res.json(rows[0])
+  } catch (error) {
+    await connection.rollback()
+    console.error("Gagal memproses pengajuan:", error.message)
+    res.status(500).json({ message: "Gagal memproses pengajuan" })
   } finally {
     connection.release()
   }
@@ -297,11 +373,11 @@ app.put("/api/pelanggan/:id", requireRole("admin"), async (req, res) => {
 app.delete("/api/pelanggan/:id", requireRole("admin"), async (req, res) => {
   try {
     const [aktif] = await db.query(
-      "SELECT id FROM transaksi WHERE pelanggan_id = ? AND status = 'Aktif'",
+      "SELECT id FROM transaksi WHERE pelanggan_id = ? AND status IN ('Menunggu Konfirmasi', 'Aktif')",
       [req.params.id]
     )
     if (aktif.length > 0)
-      return res.status(400).json({ message: "Pelanggan masih memiliki transaksi aktif" })
+      return res.status(400).json({ message: "Pelanggan masih memiliki pengajuan atau transaksi aktif" })
 
     await db.query("DELETE FROM transaksi WHERE pelanggan_id = ?", [req.params.id])
 
@@ -315,14 +391,20 @@ app.delete("/api/pelanggan/:id", requireRole("admin"), async (req, res) => {
 })
 
 app.get("/api/transaksi", requireRole("admin"), async (req, res) => {
-  const [rows] = await db.query(`
-    SELECT t.*, p.nama AS nama_pelanggan, c.nama AS nama_mobil
-    FROM transaksi t
-    JOIN pelanggan p ON p.id = t.pelanggan_id
-    JOIN cars c ON c.id = t.mobil_id
-    ORDER BY t.id DESC
-  `)
-  res.json(rows)
+  try {
+    const [rows] = await db.query(`
+      SELECT t.*, p.nama AS nama_pelanggan, c.nama AS nama_mobil
+      FROM transaksi t
+      JOIN pelanggan p ON p.id = t.pelanggan_id
+      JOIN cars c ON c.id = t.mobil_id
+      WHERE t.status IN ('Aktif', 'Selesai')
+      ORDER BY t.id DESC
+    `)
+    res.json(rows)
+  } catch (error) {
+    console.error("Gagal memuat transaksi:", error.message)
+    res.status(500).json({ message: "Gagal memuat data transaksi" })
+  }
 })
 
 app.post("/api/transaksi", requireRole("admin"), async (req, res) => {
@@ -347,13 +429,29 @@ app.post("/api/transaksi", requireRole("admin"), async (req, res) => {
 })
 
 app.put("/api/transaksi/:id", requireRole("admin"), async (req, res) => {
+  const connection = await db.getConnection()
   try {
-    const [existing] = await db.query("SELECT * FROM transaksi WHERE id = ?", [req.params.id])
-    if (existing.length === 0)
+    await connection.beginTransaction()
+    const [existing] = await connection.query("SELECT * FROM transaksi WHERE id = ? FOR UPDATE", [req.params.id])
+    if (!existing.length) {
+      await connection.rollback()
       return res.status(404).json({ message: "Transaksi tidak ditemukan" })
+    }
+    if (existing[0].status !== "Aktif") {
+      await connection.rollback()
+      return res.status(409).json({ message: "Hanya transaksi aktif yang dapat diselesaikan" })
+    }
 
-    await db.query("UPDATE transaksi SET status = 'Selesai' WHERE id = ?", [req.params.id])
-    await db.query("UPDATE cars SET status = 'tersedia' WHERE id = ?", [existing[0].mobil_id])
+    await connection.query("SELECT id FROM cars WHERE id = ? FOR UPDATE", [existing[0].mobil_id])
+    await connection.query("UPDATE transaksi SET status = 'Selesai' WHERE id = ?", [req.params.id])
+    const [reserved] = await connection.query(
+      "SELECT id FROM transaksi WHERE mobil_id = ? AND status IN ('Menunggu Konfirmasi', 'Aktif') LIMIT 1",
+      [existing[0].mobil_id]
+    )
+    if (!reserved.length) {
+      await connection.query("UPDATE cars SET status = 'tersedia' WHERE id = ?", [existing[0].mobil_id])
+    }
+    await connection.commit()
 
     const [rows] = await db.query(`
       SELECT t.*, p.nama AS nama_pelanggan, c.nama AS nama_mobil
@@ -364,8 +462,15 @@ app.put("/api/transaksi/:id", requireRole("admin"), async (req, res) => {
     `, [req.params.id])
     res.json(rows[0])
   } catch {
+    await connection.rollback()
     res.status(500).json({ message: "Gagal mengupdate transaksi" })
+  } finally {
+    connection.release()
   }
+})
+
+app.use("/api", (req, res) => {
+  res.status(404).json({ message: "Endpoint API tidak ditemukan" })
 })
 
 app.listen(3000, () => {

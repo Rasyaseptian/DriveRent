@@ -33,7 +33,7 @@ CREATE TABLE transaksi (
     tanggal_mulai DATE NOT NULL,
     tanggal_selesai DATE NOT NULL,
     total_harga INT NOT NULL,
-    status ENUM('Aktif', 'Selesai') NOT NULL DEFAULT 'Aktif',
+    status ENUM('Menunggu Konfirmasi', 'Aktif', 'Ditolak', 'Selesai') NOT NULL DEFAULT 'Aktif',
     FOREIGN KEY (pelanggan_id) REFERENCES pelanggan(id),
     FOREIGN KEY (mobil_id) REFERENCES cars(id)
 );
